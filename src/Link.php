@@ -12,11 +12,11 @@ use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Str;
 use StackTrace\Translations\HasTranslations;
+use StackTrace\Translations\LocalizedString;
 
 /**
  * @property string|null $label
  * @property string|null $href
- * @property boolean $is_localized
  * @property boolean $is_external
  * @property \Illuminate\Database\Eloquent\Model|null $resource
  * @property \Illuminate\Database\Eloquent\Model|null $linkable
@@ -30,40 +30,49 @@ class Link extends Model
 {
     use SoftDeletes, HasTranslations;
 
-    /**
-     * List of supported locales.
-     */
-    protected static array $locales = ['sk', 'en'];
-
     protected $guarded = false;
 
+    /**
+     * List of translatable attributes.
+     */
     protected array $translatable = [
         'label', 'href',
     ];
 
     /**
-     * List of relations which should be loaded when accessing resource.
+     * List of relations which should be also loaded when loading/accessing resource.
      */
     protected static array $morphResourceWith = [];
 
+    /**
+     * Casts of the model.
+     */
     protected $casts = [
-        'is_localized' => 'boolean',
         'is_external' => 'boolean',
         'route_params' => 'array',
         'query_params' => 'array',
         'meta' => 'array',
     ];
 
+    /**
+     * The resource which is accessible under link.
+     */
     public function resource(): MorphTo
     {
         return $this->morphTo()->morphWith(static::$morphResourceWith);
     }
 
+    /**
+     * The owner of the link.
+     */
     public function linkable(): MorphTo
     {
         return $this->morphTo();
     }
 
+    /**
+     * Set the query params as key value pairs on the link.
+     */
     public function setQueryParams(array $params): static
     {
         $this->query_params = [
@@ -74,6 +83,9 @@ class Link extends Model
         return $this;
     }
 
+    /**
+     * Set raw query params as string on the link.
+     */
     public function setRawQueryParams(string $params): static
     {
         $this->query_params = [
@@ -84,6 +96,9 @@ class Link extends Model
         return $this;
     }
 
+    /**
+     * Determine if the link is external.
+     */
     public function isExternal(): bool
     {
         return $this->is_external;
@@ -168,6 +183,9 @@ class Link extends Model
         return $url;
     }
 
+    /**
+     * Retrieve the URL of the link.
+     */
     public function getUrl(): ?string
     {
         $base = $this->getBaseUrl();
@@ -179,40 +197,28 @@ class Link extends Model
         return null;
     }
 
-    public static function toRoute(string|array $label, string $routeName, array $routeParams = []): static
+    /**
+     * Create new link from location.
+     */
+    public static function createFromLocation(string|LocalizedString $label, Location $location, ?Model $linkable): static
     {
         $link = new static([
             'label' => $label,
-            'route_name' => $routeName,
-            'route_params' => $routeParams,
+            'href' => $location->href,
+            'is_external' => $location->external,
+            'route_name' => $location->route,
+            'route_params' => $location->routeParams,
         ]);
 
-        $link->save();
+        $query = $location->getQueryParams();
+        if (is_string($query)) {
+            $link->setRawQueryParams($query);
+        } else if (is_array($query)) {
+            $link->setQueryParams($query);
+        }
 
-        return $link;
-    }
-
-    public static function internal(string|array $label, string|array|null $url): static
-    {
-        $link = new static([
-            'label' => $label,
-            'href' => $url,
-            'is_localized' => is_array($url),
-        ]);
-
-        $link->save();
-
-        return $link;
-    }
-
-    public static function external(string|array $label, string|array|null $url): static
-    {
-        $link = new static([
-            'label' => $label,
-            'href' => $url,
-            'is_external' => true,
-            'is_localized' => is_array($url),
-        ]);
+        $link->linkable()->associate($linkable);
+        $link->resource()->associate($location->getResource());
 
         $link->save();
 
@@ -220,26 +226,10 @@ class Link extends Model
     }
 
     /**
-     * Add relations which should be loaded with resource.
+     * Set relations which should be also eager loaded when loading attached resource.
      */
     public static function loadResourceWith(array $morphMap = []): void
     {
         static::$morphResourceWith = $morphMap;
-    }
-
-    /**
-     * Set available locales for the link.
-     */
-    public static function locales(array $locales): void
-    {
-        static::$locales = $locales;
-    }
-
-    /**
-     * Retrieve available locales for the link.
-     */
-    public static function getLocales(): array
-    {
-        return static::$locales;
     }
 }

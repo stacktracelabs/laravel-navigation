@@ -9,10 +9,11 @@ use Fureev\Trees\Config\Base;
 use Fureev\Trees\Contracts\TreeConfigurable;
 use Fureev\Trees\NestedSetTrait;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Support\Str;
 use Spatie\MediaLibrary\HasMedia;
 use Spatie\MediaLibrary\InteractsWithMedia;
+use StackTrace\Navigation\Concerns\HasLink;
 use StackTrace\Translations\HasTranslations;
 
 /**
@@ -21,10 +22,12 @@ use StackTrace\Translations\HasTranslations;
  * @property \StackTrace\Navigation\Link|null $link
  * @property array|null $meta
  * @property \Fureev\Trees\Collection $descendantsNew
+ *
+ * @method static static make(array $attributes = [])
  */
 class Menu extends Model implements TreeConfigurable, HasMedia
 {
-    use SoftDeletes, NestedSetTrait, HasTranslations, InteractsWithMedia {
+    use SoftDeletes, NestedSetTrait, HasTranslations, InteractsWithMedia, HasLink {
         NestedSetTrait::getCasts as getNestedSetTraitCasts;
     }
 
@@ -43,22 +46,21 @@ class Menu extends Model implements TreeConfigurable, HasMedia
         'meta' => 'array',
     ];
 
-    public function link(): BelongsTo
-    {
-        return $this->belongsTo(Link::class);
-    }
-
-    public function setLinkAttribute(?Link $link): void
-    {
-        $this->link()->associate($link);
-    }
-
     public function getCasts(): array
     {
         return array_merge(
             parent::getCasts(),
             $this->getNestedSetTraitCasts(),
         );
+    }
+
+    protected static function booted()
+    {
+        static::creating(function (Menu $model) {
+            if (! $model->handle) {
+                $model->handle = "me_".Str::random(28);
+            }
+        });
     }
 
     public function toTree(): static
@@ -102,6 +104,18 @@ class Menu extends Model implements TreeConfigurable, HasMedia
     protected static function buildTreeConfig(): Base
     {
         return new Base(multi: true);
+    }
+
+    /**
+     * Create new instance of the menu, marking it as a root menu.
+     */
+    public static function makeAsRoot(array $attributes = []): static
+    {
+        $menu = static::make($attributes);
+
+        $menu->makeRoot();
+
+        return $menu;
     }
 
     /**
