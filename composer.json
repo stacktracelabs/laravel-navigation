@@ -11,9 +11,12 @@
     ],
     "require": {
         "php": "^8.1|^8.2|^8.3",
+        "efureev/laravel-trees": "^3.8|^4.0",
         "illuminate/contracts": "^10.0|^11.0",
+        "illuminate/database": "^10.0|^11.0",
         "illuminate/support": "^10.0|^11.0",
-        "illuminate/database": "^10.0|^11.0"
+        "spatie/laravel-medialibrary": "^11.4",
+        "stacktrace/laravel-translations": "^0.1.0"
     },
     "require-dev": {
         "fakerphp/faker": "^1.9",
