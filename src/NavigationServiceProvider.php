@@ -13,9 +13,16 @@ class NavigationServiceProvider extends ServiceProvider
     {
         $this->loadMigrationsFrom(__DIR__.'/../database');
 
+        $this->app->singleton('navigation', NavigationService::class);
+
         Relation::morphMap([
             'menu' => Menu::class,
             'link' => Link::class,
         ]);
+    }
+
+    public function boot(): void
+    {
+        Menu::observe(MenuObserver::class);
     }
 }

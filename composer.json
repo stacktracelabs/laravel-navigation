@@ -15,7 +15,7 @@
         "illuminate/contracts": "^10.0|^11.0",
         "illuminate/database": "^10.0|^11.0",
         "illuminate/support": "^10.0|^11.0",
-        "spatie/laravel-medialibrary": "^11.4",
+        "spatie/laravel-medialibrary": "^10.0|^11.0",
         "stacktrace/laravel-translations": "^0.1.0"
     },
     "require-dev": {

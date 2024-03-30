@@ -63,11 +63,14 @@ class Menu extends Model implements TreeConfigurable, HasMedia
         });
     }
 
+    /**
+     * Create tree from descendants.
+     */
     public function toTree(): static
     {
         $this->setRelation('children', $this->descendantsNew->toTree($this));
 
-        return $this;
+        return $this->unsetRelation('descendantsNew');
     }
 
     public function registerMediaCollections(): void
@@ -107,13 +110,25 @@ class Menu extends Model implements TreeConfigurable, HasMedia
     }
 
     /**
-     * Create new instance of the menu, marking it as a root menu.
+     * Make new instance of the menu, marking it as a root menu.
      */
     public static function makeAsRoot(array $attributes = []): static
     {
         $menu = static::make($attributes);
 
         $menu->makeRoot();
+
+        return $menu;
+    }
+
+    /**
+     * Create new instance of the menu, marking it as a root menu.
+     */
+    public static function createAsRoot(array $attributes = []): static
+    {
+        $menu = static::makeAsRoot($attributes);
+
+        $menu->save();
 
         return $menu;
     }

@@ -40,11 +40,6 @@ class Link extends Model
     ];
 
     /**
-     * List of relations which should be also loaded when loading/accessing resource.
-     */
-    protected static array $morphResourceWith = [];
-
-    /**
      * Casts of the model.
      */
     protected $casts = [
@@ -59,7 +54,7 @@ class Link extends Model
      */
     public function resource(): MorphTo
     {
-        return $this->morphTo()->morphWith(static::$morphResourceWith);
+        return $this->morphTo();
     }
 
     /**
@@ -223,13 +218,5 @@ class Link extends Model
         $link->save();
 
         return $link;
-    }
-
-    /**
-     * Set relations which should be also eager loaded when loading attached resource.
-     */
-    public static function loadResourceWith(array $morphMap = []): void
-    {
-        static::$morphResourceWith = $morphMap;
     }
 }
