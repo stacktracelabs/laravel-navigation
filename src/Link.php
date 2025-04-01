@@ -136,11 +136,7 @@ class Link extends Model
         $hrefs = $this->collectHrefs();
 
         if ($hrefs->isNotEmpty()) {
-            if (! $this->is_localized) {
-                return $hrefs->first();
-            }
-
-            return $hrefs->get(App::getLocale(), fn () => $hrefs->get(App::getFallbackLocale()));
+            return $hrefs->get(App::getLocale(), fn () => $hrefs->get(App::getFallbackLocale())) ?: $hrefs->first();
         }
 
         if ($this->route_name && Route::has($this->route_name)) {
