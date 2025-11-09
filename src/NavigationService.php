@@ -5,8 +5,8 @@ namespace StackTrace\Navigation;
 
 
 use Closure;
-use Fureev\Trees\DescendantsRelation;
-use Fureev\Trees\QueryBuilder;
+use Fureev\Trees\QueryBuilderV2;
+use Fureev\Trees\Relations\DescendantsRelation;
 use Illuminate\Database\Eloquent\Relations\MorphOne;
 use Illuminate\Database\Eloquent\Relations\MorphTo;
 use Illuminate\Support\Collection;
@@ -156,10 +156,10 @@ class NavigationService
     /**
      * Create new query builder for Menu.
      */
-    protected function newMenuQuery(): QueryBuilder
+    protected function newMenuQuery(): QueryBuilderV2
     {
         return Menu::query()
-            ->with('descendantsNew', function (DescendantsRelation $descendants) {
+            ->with('descendants', function (DescendantsRelation $descendants) {
                 $descendants->with('link', function (MorphOne $link) {
                     $link->with('resource', fn (MorphTo $resource) => $resource->morphWith(static::$morphLinkResourcesWith));
                 });

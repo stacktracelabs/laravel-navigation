@@ -5,7 +5,7 @@ namespace StackTrace\Navigation;
 
 
 use Closure;
-use Fureev\Trees\Contracts\TreeConfigurable;
+use Fureev\Trees\UseTree;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Collection;
 
@@ -38,7 +38,7 @@ class MenuGenerator
             return call_user_func($this->resolveChildrenUsing, $source);
         }
 
-        if ($source instanceof Model && $source instanceof TreeConfigurable) {
+        if ($source instanceof Model && in_array(UseTree::class, class_uses_recursive($source))) {
             return $source->children;
         }
 

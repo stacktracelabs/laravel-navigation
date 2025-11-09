@@ -5,9 +5,8 @@ namespace StackTrace\Navigation;
 
 
 use Closure;
-use Fureev\Trees\Config\Base;
-use Fureev\Trees\Contracts\TreeConfigurable;
-use Fureev\Trees\NestedSetTrait;
+use Fureev\Trees\Config\Builder as TreeBuilder;
+use Fureev\Trees\UseTree;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Str;
@@ -21,15 +20,18 @@ use StackTrace\Translations\HasTranslations;
  * @property string|null $title
  * @property \StackTrace\Navigation\Link|null $link
  * @property array|null $meta
- * @property \Fureev\Trees\Collection $descendantsNew
+ * @property \Fureev\Trees\Collection<int, static> $descendants
+ * @property static $parent
  *
  * @method static static make(array $attributes = [])
  */
-class Menu extends Model implements TreeConfigurable, HasMedia
+class Menu extends Model implements HasMedia
 {
-    use SoftDeletes, NestedSetTrait, HasTranslations, InteractsWithMedia, HasLink {
-        NestedSetTrait::getCasts as getNestedSetTraitCasts;
-    }
+    use HasLink,
+        HasTranslations,
+        InteractsWithMedia,
+        SoftDeletes,
+        UseTree;
 
     protected $guarded = false;
 
@@ -46,15 +48,7 @@ class Menu extends Model implements TreeConfigurable, HasMedia
         'meta' => 'array',
     ];
 
-    public function getCasts(): array
-    {
-        return array_merge(
-            parent::getCasts(),
-            $this->getNestedSetTraitCasts(),
-        );
-    }
-
-    protected static function booted()
+    protected static function booted(): void
     {
         static::creating(function (Menu $model) {
             if (! $model->handle) {
@@ -68,9 +62,9 @@ class Menu extends Model implements TreeConfigurable, HasMedia
      */
     public function toTree(): static
     {
-        $this->setRelation('children', $this->descendantsNew->toTree($this));
+        $this->setRelation('children', $this->descendants->toTree($this));
 
-        return $this->unsetRelation('descendantsNew');
+        return $this->unsetRelation('descendants');
     }
 
     public function registerMediaCollections(): void
@@ -104,9 +98,9 @@ class Menu extends Model implements TreeConfigurable, HasMedia
         return $child;
     }
 
-    protected static function buildTreeConfig(): Base
+    protected static function buildTree(): TreeBuilder
     {
-        return new Base(multi: true);
+        return TreeBuilder::defaultMulti();
     }
 
     /**
