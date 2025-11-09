@@ -12,9 +12,9 @@
     "require": {
         "php": "^8.2",
         "efureev/laravel-trees": "^5.0",
-        "illuminate/contracts": "^12.0",
-        "illuminate/database": "^12.0",
-        "illuminate/support": "^12.0",
+        "illuminate/contracts": "^11.0|^12.0",
+        "illuminate/database": "^11.0|^12.0",
+        "illuminate/support": "^11.0|^12.0",
         "spatie/laravel-medialibrary": "^11.0",
         "stacktrace/laravel-translations": "^0.1"
     },
