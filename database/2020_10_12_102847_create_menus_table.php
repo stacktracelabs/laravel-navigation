@@ -1,7 +1,7 @@
 <?php
 
+use Fureev\Trees\Database\Migrate;
 use StackTrace\Navigation\Menu;
-use Fureev\Trees\Migrate;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
@@ -16,7 +16,7 @@ return new class extends Migration
             $table->json('title')->nullable();
             $table->foreignId('link_id')->nullable()->constrained('links')->nullOnDelete();
             $table->json('meta')->nullable();
-            Migrate::columns($table, Menu::make()->getTreeConfig());
+            Migrate::columnsFromModel($table, Menu::make());
             $table->timestamps();
             $table->softDeletes();
         });
