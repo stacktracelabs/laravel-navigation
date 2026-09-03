@@ -12,16 +12,16 @@
     "require": {
         "php": "^8.2",
         "efureev/laravel-trees": "^5.0",
-        "illuminate/contracts": "^11.0|^12.0",
-        "illuminate/database": "^11.0|^12.0",
-        "illuminate/support": "^11.0|^12.0",
+        "illuminate/contracts": "^11.0|^12.0|^13.0",
+        "illuminate/database": "^11.0|^12.0|^13.0",
+        "illuminate/support": "^11.0|^12.0|^13.0",
         "spatie/laravel-medialibrary": "^11.0",
-        "stacktrace/laravel-translations": "^0.1"
+        "stacktrace/laravel-translations": "^0.1|^0.2"
     },
     "require-dev": {
         "fakerphp/faker": "^1.24",
         "nunomaduro/collision": "^8.0",
-        "orchestra/testbench": "^10.0",
+        "orchestra/testbench": "^11.0",
         "pestphp/pest": "^4.0",
         "pestphp/pest-plugin-laravel": "^4.0"
     },
